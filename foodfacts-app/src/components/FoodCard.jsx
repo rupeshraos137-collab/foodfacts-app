@@ -1,30 +1,43 @@
+import { useNavigate } from "react-router-dom";
+
 function FoodCard({ product }) {
+  const navigate = useNavigate();
+
   const {
     product_name,
     brands,
+    image_small_url,
     nutriments,
-    image_small_url
+    code
   } = product;
 
   return (
-    <div className="food-card">
+    <div
+      className="food-card"
+      onClick={() => navigate(`/product/${code}`)}
+    >
       {/* Image */}
-      <img
-        src={image_small_url || "https://via.placeholder.com/100"}
-        alt={product_name || "No Image"}
-      />
+      <div className="food-img">
+        <img
+          src={image_small_url || "https://via.placeholder.com/150"}
+          alt={product_name || "Food"}
+        />
+      </div>
 
-      {/* Name */}
-      <h2>{product_name || "Unknown Product"}</h2>
+      {/* Content */}
+      <div className="food-info">
+        <h3>{product_name || "Unknown Product"}</h3>
+        <p className="brand">{brands || "Unknown Brand"}</p>
 
-      {/* Brand */}
-      <p>{brands || "Unknown Brand"}</p>
-
-      {/* Nutrition */}
-      <p>Calories: {nutriments?.["energy-kcal_100g"] ?? "N/A"} kcal</p>
-      <p>Protein: {nutriments?.proteins_100g ?? "N/A"} g</p>
-      <p>Carbs: {nutriments?.carbohydrates_100g ?? "N/A"} g</p>
-      <p>Fat: {nutriments?.fat_100g ?? "N/A"} g</p>
+        <div className="nutrition">
+          <span>
+            🔥 {nutriments?.["energy-kcal_100g"] ?? "N/A"} kcal
+          </span>
+          <span>
+            💪 {nutriments?.proteins_100g ?? "N/A"}g
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
