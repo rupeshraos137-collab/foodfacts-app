@@ -1,23 +1,50 @@
-import useFoodSearch from "../hooks/ useFoodSearch";
-import SearchBar from "../components/SearchBar";
-import FoodList from "../components/FoodList";
-import ErrorMessage from "../components/ErrorMessage";
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import CircularProgress from '@mui/material/CircularProgress'
+import Box from '@mui/material/Box'
+import useFoodSearch from '../hooks/useFoodSearch'
+import SearchBar from '../components/SearchBar'
+import FoodList from '../components/FoodList'
+import ErrorMessage from '../components/ErrorMessage'
 
 function HomePage() {
-  const { results, loading, error, searchFood } = useFoodSearch();
+  const { results, loading, error, searchFood } = useFoodSearch()
 
   return (
-    <div>
-      <h2>Search</h2>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h4" gutterBottom fontWeight={800}>
+        Search Nutrition Info
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Type any food name to see its nutrition facts.
+      </Typography>
 
       <SearchBar onSearch={searchFood} />
 
-      {loading && <p>Loading...</p>}
       {error && <ErrorMessage message={error} />}
 
-      <FoodList products={results} />
-    </div>
-  );
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+          <CircularProgress color="primary" />
+        </Box>
+      )}
+
+      {!loading && results.length === 0 && !error && (
+        <Typography color="text.secondary" sx={{ mt: 4, textAlign: 'center' }}>
+          Search for a food above to see nutrition info.
+        </Typography>
+      )}
+
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        {results.map(product => (
+          <Grid item xs={12} sm={6} md={4} key={product.id}>
+            <FoodCard product={product} />
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
+  )
 }
 
-export default HomePage;
+export default HomePage
