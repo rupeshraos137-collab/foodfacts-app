@@ -1,57 +1,42 @@
-import { useState } from "react";
-import SearchBar from "./components/SearchBar";
-import FoodList from "./components/FoodList";
+import { useReducer } from "react";
+import { Routes, Route } from "react-router-dom";
+import NavBar from "./components/ NavBar";
+import HomePage from "./pages/HomePage";
+import DetailPage from "./pages/DetailPage";
+import SavedPage from "./pages/SavedPage";
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "ADD":
+      if (state.find((p) => p.code === action.product.code)) return state;
+      return [...state, action.product];
+
+    case "REMOVE":
+      return state.filter((p) => p.code !== action.code);
+
+    default:
+      return state;
+  }
+}
 
 function App() {
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false); // 🔥 important
-
-  const handleSearch = async (query) => {
-    setLoading(true);
-    setSearched(true);
-
-    try {
-      const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page_size=10`;
-
-      const response = await fetch(url);
-      const data = await response.json();
-
-      const filteredProducts = data.products.filter(
-        (p) => p.product_name && p.product_name.trim() !== ""
-      );
-
-      setResults(filteredProducts);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [saved, dispatch] = useReducer(reducer, []);
 
   return (
     <div>
-      <h1>🥗 FoodFacts</h1>
+      <NavBar savedCount={saved.length} />
 
-      <SearchBar onSearch={handleSearch} />
-
-      {/* Loading */}
-      {loading && <p>Loading...</p>}
-
-      {/* Empty state BEFORE search */}
-      {!loading && !searched && (
-        <p>Search for a food above to see its nutrition info.</p>
-      )}
-
-      {/* No results AFTER search */}
-      {!loading && searched && results.length === 0 && (
-        <p>No results found. Try something else.</p>
-      )}
-
-      {/* Results */}
-      {!loading && results.length > 0 && (
-        <FoodList products={results} />
-      )}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/product/:barcode"
+          element={<DetailPage saved={saved} dispatch={dispatch} />}
+        />
+        <Route
+          path="/saved"
+          element={<SavedPage saved={saved} dispatch={dispatch} />}
+        />
+      </Routes>
     </div>
   );
 }
